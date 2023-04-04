@@ -1,0 +1,83 @@
+﻿@model Dojazdy.Models.Przystanki
+@using System.Globalization
+@{
+    ViewBag.Title = "Home Page";
+}
+    
+    <div class="row h-100">
+        <div id="rozklad" class="col-md-2 w-100 h-100 pr-0 overflow-auto"></div>
+        <div id="map" class="col-md-10"></div>
+    </div>
+
+<script>
+    let map = L.map('map').setView([52.232, 21.007], 13);
+
+    //L.tileLayer('https://tiles.wmflabs.org/osm-no-labels/{z}/{x}/{y}.png', {
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    zaladuj = (id, slupek, nazwa) => event => {
+        let el = $("#rozklad");
+        el.html('<div class="d-flex justify-content-center align-items-center h-100"><div class="loader"></div></div>')
+        $.ajax({
+            url: "/home/GetRozklad", type: "POST", data: { Id: id, Slupek: slupek },
+            success: function (result) {
+                console.log(result);
+                let zawartosc = `<div class="w-100 p-1 nazwa tlo">${nazwa}</div>`;
+                for ([linia, odjazdy] of Object.entries(result)) {
+                    zawartosc += `<div class="w-100 p-1 linia tlo">${linia}</div>`;
+                    zawartosc += '<div class="d-flex flex-wrap">';
+                    for (odjazd of odjazdy) {
+                        let data = new Date(odjazd);
+                        zawartosc += `<div class="m-2">${data.getHours().pad(2)}:${data.getMinutes().pad(2)}</div>`;
+                    }
+                    zawartosc += '</div>';
+                }
+                el.html(zawartosc);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    @foreach(var przystanek in Model.Lista.Where(p => !(p.Lat == 0 || p.Lon == 0)))
+    {
+    <text>
+    L.circle([@(przystanek.Lat), @(przystanek.Lon)], { radius: 20 })
+        .on("click", zaladuj("@(przystanek.Id)", "@(przystanek.Slupek)", "@(przystanek.Nazwa)"))
+        .addTo(map);
+    </text>
+    }
+
+    /*let layer = L.layerGroup().addTo(map);
+    function api() {
+        $.ajax({
+            url: "/Home/Pojazdy",
+            success: function (result) {
+                //console.log(result);
+                let granica = new Date().setMinutes(new Date().getMinutes() - 1);
+                if (Array.isArray(result.result)) {
+                    layer.clearLayers();
+                    for (pojazd of result.result) {
+                            L.circle([pojazd.Lat, pojazd.Lon], { radius: 20, color: new Date(pojazd.Time) > granica ? "blue" : "gray" })
+                                .bindPopup("Linia " + pojazd.Lines + "<br>" + "Czas aktualizacji: " + pojazd.Time)
+                                .addTo(layer);
+                    }
+                } else {
+                    console.log("Błąd połączenia z API");
+                }
+                //console.log(pojazdy);
+            }
+        });
+    }
+
+    api();
+    setInterval(api, 10000);*/
+    Number.prototype.pad = function(size) {
+        var s = String(this);
+        while (s.length < (size || 2)) {s = "0" + s;}
+        return s;
+    }
+</script>

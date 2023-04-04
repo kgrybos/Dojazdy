@@ -1,0 +1,40 @@
+﻿body, html {
+    margin: 0;
+    height: 100%;
+}
+
+.tlo {
+    background-color: #17123d;
+    color: white;
+    text-align: center;
+    border-top: 2px solid #aca7d1;
+    border-bottom: 2px solid #aca7d1;
+}
+
+.linia {
+    font-size: 1.5em;
+}
+
+.nazwa {
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+.loader {
+    width: 100px;
+    height: 100px;
+    border: 10px solid #aca7d1;
+    border-top: 10px solid #17123d;
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
