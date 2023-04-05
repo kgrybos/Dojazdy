@@ -1,2 +1,2 @@
 # Exclude external javascript from language statistics
-Dojazdy/Scripts/* linguist-vendored
+Dojazdy/Scripts/** linguist-vendored
